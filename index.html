@@ -1,1 +1,76 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>คลังการ์ตูนของ Chang</title>
+
+<style>
+body {
+    background:#222;
+    color:#fff;
+    font-family:sans-serif;
+    margin:0;
+    padding:20px;
+}
+
+h1 {
+    text-align:center;
+    margin-bottom:20px;
+}
+
+.grid {
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(160px, 1fr));
+    gap:20px;
+}
+
+.item {
+    text-align:center;
+}
+
+.item img {
+    width:100%;
+    border-radius:6px;
+    cursor:pointer;
+    transition:transform 0.2s;
+}
+
+.item img:hover {
+    transform:scale(1.05);
+}
+
+.title {
+    margin-top:8px;
+    font-size:14px;
+    color:#ddd;
+}
+</style>
+</head>
+
+<body>
+
+<h1>📚 คลังการ์ตูนของ Chang</h1>
+
+<div class="grid">
+
+    <div class="item">
+        <a href="story1/index.html">
+            <img src="story1/cover.jpg" loading="lazy">
+        </a>
+        <div class="title">เรื่องที่ 1</div>
+    </div>
+
+    <div class="item">
+        <a href="story2/index.html">
+            <img src="story2/cover.jpg" loading="lazy">
+        </a>
+        <div class="title">เรื่องที่ 2</div>
+    </div>
+
+    <!-- เพิ่มเรื่องได้เรื่อย ๆ -->
+</div>
+
+</body>
+</html>
 
