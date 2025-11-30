@@ -3,45 +3,66 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Thumbnails</title>
+<title>Viewer</title>
 
 <style>
 body {
-    background:#f5f5f5;
     margin:0;
-    padding:10px;
-    font-family:sans-serif;
-}
-.thumb-list {
+    background:#000;
     display:flex;
-    flex-wrap:wrap;
-    gap:6px;
+    justify-content:center;
+    align-items:center;
+    height:100vh;
+    overflow:hidden;
 }
-.thumb-list img {
-    width:130px;
-    height:auto;
-    cursor:pointer;
-    border-radius:4px;
-    transition:0.2s;
-}
-.thumb-list img:hover {
-    transform:scale(1.05);
+img#big {
+    max-width:100%;
+    max-height:100%;
+    user-select:none;
 }
 </style>
 </head>
 
 <body>
 
-<div class="thumb-list">
+<img id="big">
 
-    <!-- ใส่ภาพ thumbnail -->
-    <a href="viewer.html?p=1"><img src="img/001.jpg"></a>
-    <a href="viewer.html?p=2"><img src="img/002.jpg"></a>
-    <a href="viewer.html?p=3"><img src="img/003.jpg"></a>
-    <a href="viewer.html?p=4"><img src="img/004.jpg"></a>
-    <!-- เพิ่มตามจำนวนหน้า -->
+<script>
+// อ่านค่า p จาก URL
+const url = new URLSearchParams(window.location.search);
+let p = parseInt(url.get("p"));
 
-</div>
+function show() {
+    document.getElementById("big").src = "img/" + String(p).padStart(3,'0') + ".jpg";
+}
+show();
+
+// สไลด์ซ้ายขวา
+let startX = 0;
+
+document.addEventListener("touchstart", e => startX = e.touches[0].clientX);
+
+document.addEventListener("touchend", e => {
+    let endX = e.changedTouches[0].clientX;
+
+    if (startX - endX > 50) {  // ปัดซ้าย → ไปหน้าถัดไป
+        p++;
+        show();
+    }
+    if (endX - startX > 50) {  // ปัดขวา → หน้าก่อนหน้า
+        if (p > 1) {
+            p--;
+            show();
+        }
+    }
+});
+
+// ปุ่มซ้ายขวาคีย์บอร์ด
+document.addEventListener("keydown", e => {
+    if (e.key === "ArrowRight") { p++; show(); }
+    if (e.key === "ArrowLeft") { if(p>1){p--; show();} }
+});
+</script>
 
 </body>
 </html>
