@@ -15,79 +15,155 @@
     text-align:center;
   }
   .box{
-    max-width:600px;
+    max-width:650px;
     margin:auto;
     background:#fff;
-    padding:20px;
-    border-radius:16px;
-    box-shadow:0 6px 18px rgba(0,0,0,.15);
+    padding:22px;
+    border-radius:18px;
+    box-shadow:0 8px 22px rgba(0,0,0,.15);
   }
-  h2{ color:#8e24aa; }
+  h2{ color:#8e24aa; margin:0 0 14px; }
+
   textarea{
     width:100%;
     height:120px;
     font-size:16px;
-    padding:10px;
-    border-radius:10px;
+    padding:12px;
+    border-radius:12px;
+    border:1px solid #ddd;
+    outline:none;
+    resize: vertical;
   }
+
+  .btn-row{
+    margin-top:14px;
+    display:flex;
+    gap:10px;
+    justify-content:center;
+    flex-wrap:wrap;
+  }
+
   button{
-    margin-top:10px;
-    padding:10px 24px;
+    padding:10px 22px;
     font-size:16px;
     border:none;
-    border-radius:10px;
-    background:#8e24aa;
-    color:#fff;
+    border-radius:12px;
     cursor:pointer;
+    color:#fff;
   }
+  .btn-run{ background:#8e24aa; }
+  .btn-clear{ background:#ff5722; }
+  .btn-copy{ background:#2196f3; }
+
   .result{
-    margin-top:20px;
+    margin-top:18px;
     text-align:left;
     background:#f8eafc;
-    padding:15px;
-    border-radius:12px;
+    padding:16px;
+    border-radius:14px;
     white-space:pre-wrap;
+    word-break:break-word;
+    line-height:1.45;
+  }
+
+  .copied-msg{
+    display:none;
+    margin-top:10px;
+    color:green;
+    font-weight:800;
   }
 </style>
 </head>
 
 <body>
-
 <div class="box">
   <h2>วินเลขรวม (หลายชุด)</h2>
 
-  <textarea id="input" placeholder="พิมพ์เลขหลายบรรทัด เช่น&#10;1025&#10;1256&#10;8015"></textarea>
+  <textarea id="input" placeholder="พิมพ์เลขหลายบรรทัด เช่น&#10;1025&#10;1256&#10;8015&#10;8156"></textarea>
 
-  <button onclick="run()">วินเลขรวม</button>
+  <div class="btn-row">
+    <button class="btn-run" onclick="run()">วินเลขรวม</button>
+    <button class="btn-clear" onclick="resetAll()">เริ่มใหม่</button>
+    <button class="btn-copy" onclick="copyAll()">คัดลอกทั้งหมด</button>
+  </div>
 
+  <div id="copied" class="copied-msg">คัดลอกแล้ว!</div>
   <div id="output" class="result"></div>
 </div>
 
 <script>
-function run(){
-  const raw = document.getElementById("input").value.trim();
-  const lines = raw.split(/\n+/);
-  let out = "";
+  function toThaiNumber(n){
+    const th = ['๐','๑','๒','๓','๔','๕','๖','๗','๘','๙'];
+    return n.toString().split('').map(d => th[+d] ?? d).join('');
+  }
 
-  lines.forEach((line, idx) => {
-    const num = line.replace(/\D/g,'');
-    if(num.length < 2) return;
-
-    let set = new Set();
-
+  function buildPairs(num){
+    // จับคู่เลข 2 ตัวแบบ "เรียงตามลำดับอินพุต" (i < j) และไม่เอาซ้ำ
+    const set = new Set();
     for(let i=0;i<num.length;i++){
       for(let j=i+1;j<num.length;j++){
-        set.add(num[i]+num[j]);
+        set.add(num[i] + num[j]);
       }
     }
+    return Array.from(set);
+  }
 
-    out += `[${idx+1}] ${num}\n`;
-    out += Array.from(set).join(" ") + "\n\n";
+  function run(){
+    const raw = document.getElementById("input").value.trim();
+    const lines = raw.split(/\n+/).map(x => x.trim()).filter(Boolean);
+
+    let out = "";
+    let any = false;
+
+    lines.forEach((line, idx) => {
+      const num = line.replace(/\D/g,''); // เอาเฉพาะตัวเลข
+      if(num.length < 2) return;
+
+      any = true;
+      const pairs = buildPairs(num);
+
+      out += `[${toThaiNumber(idx+1)}] ชุด${num}\n`;
+      out += pairs.join(" ") + "\n\n";
+    });
+
+    document.getElementById("output").textContent = any ? out.trim() : "กรุณาพิมพ์เลขอย่างน้อย 2 ตัวต่อบรรทัด";
+    document.getElementById("copied").style.display = "none";
+  }
+
+  function resetAll(){
+    document.getElementById("input").value = "";
+    document.getElementById("output").textContent = "";
+    document.getElementById("copied").style.display = "none";
+    setTimeout(() => focusInput(), 0);
+  }
+
+  function copyAll(){
+    const text = document.getElementById("output").textContent.trim();
+    if(!text) return;
+
+    navigator.clipboard.writeText(text).then(() => {
+      const msg = document.getElementById("copied");
+      msg.style.display = "block";
+      setTimeout(() => msg.style.display = "none", 1500);
+    });
+  }
+
+  // Enter = วินเลขรวม (ถ้าไม่ได้กด Shift)
+  document.getElementById("input").addEventListener("keydown", function(e){
+    if(e.key === "Enter" && !e.shiftKey){
+      e.preventDefault();
+      run();
+    }
   });
 
-  document.getElementById("output").textContent = out.trim();
-}
+  // โฟกัสอัตโนมัติ
+  function focusInput(){
+    const el = document.getElementById("input");
+    if(!el) return;
+    el.focus({preventScroll:true});
+  }
+  window.addEventListener("load", focusInput);
+  window.addEventListener("pageshow", focusInput);
 </script>
-
 </body>
 </html>
