@@ -19,6 +19,7 @@
     margin:auto;
     background:#fff;
     padding:22px;
+    padding-bottom:60px; /* ✅ เพิ่มพื้นที่สีขาวด้านล่าง */
     border-radius:18px;
     box-shadow:0 8px 22px rgba(0,0,0,.15);
   }
@@ -218,7 +219,6 @@
   });
 
   // ✅ “เหมือนโค้ดเก่า”: วาง/พิมพ์แล้วให้ล้างตัวหนังสือทันที
-  // หลักการ: เก็บแต่เลข และแปลงตัวคั่นทั้งหมดเป็นขึ้นบรรทัดใหม่
   document.getElementById("input").addEventListener("input", function(){
     const before = this.value;
     const after = before.replace(/[^\d]+/g, '\n'); // อะไรไม่ใช่เลข = newline
