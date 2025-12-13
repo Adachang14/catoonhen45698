@@ -3,65 +3,90 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Viewer</title>
+<title>วินเลขรวม</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700;800&display=swap" rel="stylesheet">
 
 <style>
-body {
-    margin:0;
-    background:#000;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    height:100vh;
-    overflow:hidden;
-}
-img#big {
-    max-width:100%;
-    max-height:100%;
-    user-select:none;
-}
+  body{
+    font-family:'Sarabun',sans-serif;
+    background:#f3e5f5;
+    padding:20px;
+    text-align:center;
+  }
+  .box{
+    max-width:600px;
+    margin:auto;
+    background:#fff;
+    padding:20px;
+    border-radius:16px;
+    box-shadow:0 6px 18px rgba(0,0,0,.15);
+  }
+  h2{ color:#8e24aa; }
+  textarea{
+    width:100%;
+    height:120px;
+    font-size:16px;
+    padding:10px;
+    border-radius:10px;
+  }
+  button{
+    margin-top:10px;
+    padding:10px 24px;
+    font-size:16px;
+    border:none;
+    border-radius:10px;
+    background:#8e24aa;
+    color:#fff;
+    cursor:pointer;
+  }
+  .result{
+    margin-top:20px;
+    text-align:left;
+    background:#f8eafc;
+    padding:15px;
+    border-radius:12px;
+    white-space:pre-wrap;
+  }
 </style>
 </head>
 
 <body>
 
-<img id="big">
+<div class="box">
+  <h2>วินเลขรวม (หลายชุด)</h2>
+
+  <textarea id="input" placeholder="พิมพ์เลขหลายบรรทัด เช่น&#10;1025&#10;1256&#10;8015"></textarea>
+
+  <button onclick="run()">วินเลขรวม</button>
+
+  <div id="output" class="result"></div>
+</div>
 
 <script>
-// อ่านค่า p จาก URL
-const url = new URLSearchParams(window.location.search);
-let p = parseInt(url.get("p"));
+function run(){
+  const raw = document.getElementById("input").value.trim();
+  const lines = raw.split(/\n+/);
+  let out = "";
 
-function show() {
-    document.getElementById("big").src = "img/" + String(p).padStart(3,'0') + ".jpg";
+  lines.forEach((line, idx) => {
+    const num = line.replace(/\D/g,'');
+    if(num.length < 2) return;
+
+    let set = new Set();
+
+    for(let i=0;i<num.length;i++){
+      for(let j=i+1;j<num.length;j++){
+        set.add(num[i]+num[j]);
+      }
+    }
+
+    out += `[${idx+1}] ${num}\n`;
+    out += Array.from(set).join(" ") + "\n\n";
+  });
+
+  document.getElementById("output").textContent = out.trim();
 }
-show();
-
-// สไลด์ซ้ายขวา
-let startX = 0;
-
-document.addEventListener("touchstart", e => startX = e.touches[0].clientX);
-
-document.addEventListener("touchend", e => {
-    let endX = e.changedTouches[0].clientX;
-
-    if (startX - endX > 50) {  // ปัดซ้าย → ไปหน้าถัดไป
-        p++;
-        show();
-    }
-    if (endX - startX > 50) {  // ปัดขวา → หน้าก่อนหน้า
-        if (p > 1) {
-            p--;
-            show();
-        }
-    }
-});
-
-// ปุ่มซ้ายขวาคีย์บอร์ด
-document.addEventListener("keydown", e => {
-    if (e.key === "ArrowRight") { p++; show(); }
-    if (e.key === "ArrowLeft") { if(p>1){p--; show();} }
-});
 </script>
 
 </body>
