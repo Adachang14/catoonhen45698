@@ -79,7 +79,7 @@
 <div class="box">
   <h2>วินเลขรวม (หลายชุด)</h2>
 
-  <textarea id="input" placeholder="พิมพ์เลขหลายบรรทัด เช่น&#10;1025&#10;1256&#10;8015&#10;8156"></textarea>
+  <textarea id="input" placeholder="พิมพ์เลขหลายชุดได้เลย เช่น&#10;1025&#10;1256&#10;8015&#10;8156"></textarea>
 
   <div class="btn-row">
     <button class="btn-run" onclick="run()">วินเลขรวม</button>
@@ -97,6 +97,18 @@
     return n.toString().split('').map(d => th[+d] ?? d).join('');
   }
 
+  function hasDuplicates(str){
+    return /(.).*\1/.test(str);
+  }
+
+  // ตัดตัวหนังสือ/สัญลักษณ์: เก็บแค่เลข แล้วใช้เป็นตัวคั่นชุด
+  function normalizeToLines(raw){
+    // แทนทุกอย่างที่ไม่ใช่เลขด้วย \n แล้วค่อยแยกบรรทัด
+    const cleaned = raw.replace(/[^\d]+/g, '\n').trim();
+    if(!cleaned) return [];
+    return cleaned.split(/\n+/).map(s => s.trim()).filter(Boolean);
+  }
+
   function buildPairs(num){
     // จับคู่เลข 2 ตัวแบบ "เรียงตามลำดับอินพุต" (i < j) และไม่เอาซ้ำ
     const set = new Set();
@@ -109,24 +121,39 @@
   }
 
   function run(){
-    const raw = document.getElementById("input").value.trim();
-    const lines = raw.split(/\n+/).map(x => x.trim()).filter(Boolean);
+    const raw = document.getElementById("input").value;
+    const lines = normalizeToLines(raw);
+
+    if(lines.length === 0){
+      document.getElementById("output").textContent = "กรุณาพิมพ์เลขอย่างน้อย 2 ตัวต่อชุด";
+      document.getElementById("copied").style.display = "none";
+      return;
+    }
+
+    // เช็คเลขซ้ำแบบเดียวกับอันเก่า: ถ้าพบ ให้เด้งเตือนแล้ว “หยุดทันที”
+    for(let i=0;i<lines.length;i++){
+      const num = lines[i];
+      if(num.length < 2) continue;
+      if(hasDuplicates(num)){
+        alert("❗️เลขซ้ำ เเจ้งลค.= เลขซ้ำจ้า แอดขอเลขใหม่จ้าพี่\n(พบในชุดที่ " + toThaiNumber(i+1) + " : " + num + ")");
+        return;
+      }
+    }
 
     let out = "";
     let any = false;
 
-    lines.forEach((line, idx) => {
-      const num = line.replace(/\D/g,''); // เอาเฉพาะตัวเลข
+    lines.forEach((num, idx) => {
       if(num.length < 2) return;
 
       any = true;
       const pairs = buildPairs(num);
 
-      out += `[${toThaiNumber(idx+1)}] ชุด${num}\n`;
+      out += `ชุดที่${toThaiNumber(idx+1)}\n`;
       out += pairs.join(" ") + "\n\n";
     });
 
-    document.getElementById("output").textContent = any ? out.trim() : "กรุณาพิมพ์เลขอย่างน้อย 2 ตัวต่อบรรทัด";
+    document.getElementById("output").textContent = any ? out.trim() : "กรุณาพิมพ์เลขอย่างน้อย 2 ตัวต่อชุด";
     document.getElementById("copied").style.display = "none";
   }
 
@@ -148,7 +175,7 @@
     });
   }
 
-  // Enter = วินเลขรวม (ถ้าไม่ได้กด Shift)
+  // Enter = วินเลขรวม (Shift+Enter ยังขึ้นบรรทัดใหม่ได้)
   document.getElementById("input").addEventListener("keydown", function(e){
     if(e.key === "Enter" && !e.shiftKey){
       e.preventDefault();
