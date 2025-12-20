@@ -199,10 +199,21 @@
   }
 
   function copyAll(){
-    const text = document.getElementById("output").textContent.trim();
-    if(!text) return;
+    const raw = document.getElementById("output").textContent;
+    if(!raw.trim()) return;
 
-    navigator.clipboard.writeText(text).then(() => {
+    // ✅ คัดลอกเฉพาะเลขผลลัพธ์ (ไม่เอาบรรทัด "ชุดที่๑")
+    const onlyNumbers = raw
+      .split('\n')
+      .map(l => l.trim())
+      .filter(l => l && !l.startsWith('ชุดที่'))   // ตัด "ชุดที่..."
+      .join('\n')
+      .replace(/\n{3,}/g, '\n\n')
+      .trim();
+
+    if(!onlyNumbers) return;
+
+    navigator.clipboard.writeText(onlyNumbers).then(() => {
       const msg = document.getElementById("copied");
       msg.style.display = "block";
       setTimeout(() => msg.style.display = "none", 1500);
@@ -235,4 +246,4 @@
   window.addEventListener("pageshow", focusInput);
 </script>
 </body>
-</html> 
+</html>
